@@ -2,15 +2,18 @@ package br.com.wallace.ms.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class Board {
+public class Board implements FieldObserver{
+	
 	private int lines;
 	private int columns;
 	private int mines;
 	
 	private final List<Field> fields = new ArrayList<>();
-
+	private final List<Consumer<ResultEvent>> observers = new ArrayList<>();
+	
 	public Board(int lines, int columns, int mines) {
 		this.lines = lines;
 		this.columns = columns;
@@ -21,17 +24,20 @@ public class Board {
 		drawMines();
 	}
 	
+	public void registerObservers(Consumer<ResultEvent> observer) {
+		observers.add(observer);
+	}
+	
+	private void notifyObervers(boolean result) {
+		observers.stream()
+			.forEach(o -> o.accept(new ResultEvent(result)));
+	}
+	
 	public void open(int line, int column) {
-		try {
-			fields.parallelStream()
-				.filter(c -> c.getLine() == line && c.getColumn() == column)
-				.findFirst()
-				.ifPresent(c -> c.open());;
-		} catch (Exception e) {
-			// FIXME Ajustar a iplementaçaão do método
-			fields.forEach(c -> c.setOpened(true));
-			throw e;
-		}
+		fields.parallelStream()
+			.filter(c -> c.getLine() == line && c.getColumn() == column)
+			.findFirst()
+			.ifPresent(c -> c.open());
 	}
 	
 	public void toggleMarking(int line, int column) {
@@ -44,7 +50,9 @@ public class Board {
 	private void generateFields() {
 		for (int l = 0; l < lines; l++) {
 			for (int c = 0; c < columns; c++) {
-				fields.add(new Field(l, c));
+				Field field = new Field(l, c);
+				field.registerObservers(this);
+				fields.add(field);
 			}
 		}
 		
@@ -75,5 +83,21 @@ public class Board {
 	public void restart() {
 		fields.stream().forEach(c -> c.restart());
 		drawMines();
+	}
+	
+	@Override
+	public void eventOccurred(Field field, FieldEvent event) {
+		if(event == FieldEvent.EXPLODE) { 
+			showMines();
+			notifyObervers(false);
+		} else if (objectiveAchieved()) {
+			notifyObervers(true);
+		}
+	}
+	
+	private void showMines() {
+		fields.stream()
+		.filter(c -> c.isUndermine())
+		.forEach(c -> c.setOpened(true));
 	}
 }
