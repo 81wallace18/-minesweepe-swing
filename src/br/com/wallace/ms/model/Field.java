@@ -3,8 +3,6 @@ package br.com.wallace.ms.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.wallace.ms.exceptions.ExplosionException;
-
 public class Field {
 	
 	private final int line;
@@ -15,11 +13,21 @@ public class Field {
 	private boolean marked;
 	
 	private List<Field> neighbors = new ArrayList<>();
-	
+	private List<FieldObserver> observers = new ArrayList<>();
 	
 	Field (int line, int column) {
 		this.line = line;
 		this.column = column;
+	}
+	
+	public void registerObservers(FieldObserver observer) {
+		observers.add(observer);
+	}
+	
+	private void notifyObservers(FieldEvent event) {
+		observers.stream()
+			.forEach(o -> o.eventOccurred(this, event));
+		
 	}
 	
 	public boolean addNeighbors(Field neighbor) {
@@ -45,6 +53,12 @@ public class Field {
 	public void toggleMarking() {
 		if(!opened) {
 			marked = !marked;
+			
+			if(marked) {
+				notifyObservers(FieldEvent.MARK);
+			} else {
+				notifyObservers(FieldEvent.UNMARK);
+			}
 		}
 	}
 	
@@ -53,8 +67,12 @@ public class Field {
 			opened = true;
 			
 			if(undermine) {
-				throw new ExplosionException();
+				notifyObservers(FieldEvent.EXPLODE);
+				return true;
 			}
+			
+			setOpened(true);
+						
 			if(neighborhoodSafe()) {
 				neighbors.forEach(v -> v.open());
 			}
@@ -86,6 +104,10 @@ public class Field {
 	
 	void setOpened(boolean opened) {
 		this.opened = opened;
+		
+		if(opened) {
+			notifyObservers(FieldEvent.OPEN);
+		}
 	}
 	
 	public boolean isClosed() {
