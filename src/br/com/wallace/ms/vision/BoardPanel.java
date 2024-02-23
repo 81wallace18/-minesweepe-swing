@@ -14,5 +14,9 @@ public class BoardPanel extends JPanel{
 		setLayout(new GridLayout(board.getLines(), board.getColumns()));
 		
 		board.MyForEach(f -> add(new FieldButton(f)));
+		
+		board.registerObservers(e -> {
+			// TODO mostrar resultado pro usuário
+		});
 	}
 }
