@@ -7,9 +7,9 @@ import java.util.function.Predicate;
 
 public class Board implements FieldObserver{
 	
-	private int lines;
-	private int columns;
-	private int mines;
+	private final int lines;
+	private final int columns;
+	private final int mines;
 	
 	private final List<Field> fields = new ArrayList<>();
 	private final List<Consumer<ResultEvent>> observers = new ArrayList<>();
@@ -22,6 +22,10 @@ public class Board implements FieldObserver{
 		generateFields();
 		associateNeighbors();
 		drawMines();
+	}
+	
+	public void MyForEach(Consumer<Field> function) {
+		fields.forEach(function);
 	}
 	
 	public void registerObservers(Consumer<ResultEvent> observer) {
@@ -99,5 +103,13 @@ public class Board implements FieldObserver{
 		fields.stream()
 		.filter(c -> c.isUndermine())
 		.forEach(c -> c.setOpened(true));
+	}
+
+	public int getLines() {
+		return lines;
+	}
+
+	public int getColumns() {
+		return columns;
 	}
 }
