@@ -128,8 +128,8 @@ public class Field {
 		return protectedVariable || unraveledVariable;
 	}
 	
-	public long minesInTheNeighborhood() {
-		return neighbors.stream().filter(n -> n.undermine).count();
+	public int minesInTheNeighborhood() {
+		return (int) neighbors.stream().filter(n -> n.undermine).count();
 	}
 	
 	public void restart() {

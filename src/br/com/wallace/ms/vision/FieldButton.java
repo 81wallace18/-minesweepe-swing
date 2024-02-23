@@ -1,6 +1,8 @@
 package br.com.wallace.ms.vision;
 
 import java.awt.Color;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -10,7 +12,7 @@ import br.com.wallace.ms.model.FieldEvent;
 import br.com.wallace.ms.model.FieldObserver;
 
 @SuppressWarnings("serial")
-public class FieldButton extends JButton implements FieldObserver{
+public class FieldButton extends JButton implements FieldObserver, MouseListener{
 
 	private final Color BG_PATTERN = new Color(184, 184, 184);
 	private final Color BG_MARKED = new Color(8, 179, 247);
@@ -24,6 +26,7 @@ public class FieldButton extends JButton implements FieldObserver{
 		setBackground(BG_PATTERN);
 		setBorder(BorderFactory.createBevelBorder(0));
 		
+		addMouseListener(this);
 		field.registerObservers(this);
 	}
 	
@@ -60,6 +63,43 @@ public class FieldButton extends JButton implements FieldObserver{
 	}
 
 	private void ApplyOpenStyle() {
+		setBackground(BG_PATTERN);
+		setBorder(BorderFactory.createLineBorder(Color.GRAY));
 		
+		switch (field.minesInTheNeighborhood()) {
+		case 1: 	
+			setForeground(TXT_GREEN);
+			break;
+		case 2: 	
+			setForeground(Color.BLUE);
+			break;
+		case 3: 	
+			setForeground(Color.YELLOW);
+			break;
+		case 4:
+		case 5:
+		case 6:
+			setForeground(TXT_GREEN);
+			break;
+		default:
+			setForeground(Color.PINK);
+		}
+		String valor = !field.neighborhoodSafe() ? field.minesInTheNeighborhood() + "" : "";
+		setText(valor);
 	}
+	
+	//Interface of the events of mouse
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if(e.getButton() == 1) {
+			field.open();
+		} else {
+			field.toggleMarking();
+		}
+	}
+	
+	public void mouseClicked(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {}
 }
