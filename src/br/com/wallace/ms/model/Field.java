@@ -136,5 +136,6 @@ public class Field {
 		opened = false;
 		undermine = false;
 		marked = false;
+		notifyObservers(FieldEvent.RESTART);
 	}
 }

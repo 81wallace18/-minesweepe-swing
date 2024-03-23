@@ -8,7 +8,7 @@ import br.com.wallace.ms.model.Board;
 public class MainScreen extends JFrame{
 
 	public MainScreen() {
-		Board board = new Board(16, 30, 50);
+		Board board = new Board(16, 30, 5);
 		BoardPanel boardPanel = new BoardPanel(board);
 		add(boardPanel);
 		

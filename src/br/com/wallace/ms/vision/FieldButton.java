@@ -6,6 +6,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.SwingUtilities;
 
 import br.com.wallace.ms.model.Field;
 import br.com.wallace.ms.model.FieldEvent;
@@ -46,10 +47,15 @@ public class FieldButton extends JButton implements FieldObserver, MouseListener
 		default:
 			ApplyPatternStyle();
 		}
+		SwingUtilities.invokeLater(() -> {
+			repaint();
+			validate();
+		});
 	}
 
 	private void ApplyPatternStyle() {
 		setBackground(BG_PATTERN);
+		setBorder(BorderFactory.createBevelBorder(0));
 		setText("");
 	}
 
